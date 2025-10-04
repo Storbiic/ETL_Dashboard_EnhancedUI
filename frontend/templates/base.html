@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ page_title or 'ETL Dashboard' }}{% endblock %}</title>
+    <!-- Tailwind CSS (Local) -->
+    <script src="{{ url_for('static', filename='vendor/js/tailwind.js') }}"></script>
+    <script>
+        // Suppress Tailwind CDN warning immediately
+        (function() {
+            const originalWarn = console.warn;
+            console.warn = function(msg) {
+                if (typeof msg === 'string' && msg.includes('cdn.tailwindcss.com should not be used in production')) {
+                    return;
+                }
+                originalWarn.apply(console, arguments);
+            };
+        })();
+        
+        // Configure Tailwind with custom design tokens
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'rojo': {
+                            DEFAULT: '#d82423',
+                            light: '#ff4757',
+                        },
+                        'vista-blue': {
+                            DEFAULT: '#7f9ec3',
+                            light: '#98b1cf',
+                            dark: '#537cae',
+                        },
+                        'azure': {
+                            DEFAULT: '#d3e4e9',
+                            light: '#e5eff2',
+                        },
+                        'text': {
+                            primary: '#060505',
+                            secondary: '#736060',
+                            tertiary: '#a49292',
+                            muted: '#d2c9c9',
+                        }
+                    },
+                    backdropBlur: {
+                        xs: '2px',
+                        sm: '4px',
+                        md: '12px',
+                        lg: '20px',
+                    },
+                    backgroundImage: {
+                        'rojo-gradient': 'linear-gradient(135deg, #ff4757 0%, #d82423 100%)',
+                        'blue-gradient': 'linear-gradient(90deg, #7f9ec3 0%, #5d9bad 50%, #7f9ec3 100%)',
+                        'glass': 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)',
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px rgba(0, 0, 0, 0.08)',
+                        'glass-lg': '0 12px 48px rgba(0, 0, 0, 0.12)',
+                        'brand-red': '0 8px 24px rgba(216, 36, 35, 0.3)',
+                        'brand-blue': '0 8px 24px rgba(127, 158, 195, 0.25)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <!-- Font Awesome for icons (Local) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/css/fontawesome.min.css') }}">
+
+    <!-- Chart.js for interactive charts (Local) -->
+    <script src="{{ url_for('static', filename='vendor/js/chart.min.js') }}" defer></script>
+
+    <!-- Global Progress Tracker Scripts - Single Horizontal Line Version -->
+    <script src="{{ url_for('static', filename='js/global-progress-tracker-v2.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/global-progress-sync.js') }}" defer></script>
+
+    {% block head %}{% endblock %}
+</head>
+<body class="min-h-screen relative overflow-x-hidden" style="background: linear-gradient(135deg, #f0f4ff 0%, #e8f1ff 100%);">
+    <!-- Background Decorative Elements -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-4" style="background: linear-gradient(135deg, #7f9ec3 0%, #5d9bad 100%); animation: float 30s ease-in-out infinite;"></div>
+        <div class="absolute top-1/4 -left-48 w-80 h-80 rounded-full opacity-5" style="background: linear-gradient(135deg, #ff4757 0%, #d82423 100%); animation: float 25s ease-in-out infinite reverse;"></div>
+        <div class="absolute bottom-20 right-1/3 w-64 h-64 rounded-full opacity-4" style="background: linear-gradient(135deg, #d3e4e9 0%, #e5eff2 100%); animation: float 20s ease-in-out infinite;"></div>
+    </div>
+    <!-- Fixed Navigation with Glassmorphic Effect -->
+    <nav class="fixed top-0 left-0 right-0 z-50 h-16" style="backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.85); border-bottom: 1px solid rgba(229, 235, 243, 0.5); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex justify-between items-center h-full">
+                <div class="flex items-center">
+                    <a href="{{ url_for('index') }}" class="flex items-center">
+                        <!-- Yazaki Logo with Modern Gradient -->
+                        <div class="px-6 py-2 rounded-lg font-black text-white text-xl tracking-wider shadow-brand-red transition-all duration-300 hover:scale-105" style="background: linear-gradient(135deg, #ff4757 0%, #d82423 100%);">
+                            YAZAKI
+                        </div>
+                        <span class="ml-4 text-2xl font-extrabold text-text-primary">ETL Dashboard</span>
+                    </a>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <a href="{{ url_for('index') }}" class="nav-item px-4 py-2 rounded-2xl text-sm {% if request.endpoint == 'index' %}font-semibold text-vista-blue-dark bg-azure-light{% else %}font-medium text-text-tertiary hover:bg-azure-light/50 hover:text-vista-blue-dark{% endif %} transition-all duration-300">
+                        <i class="fas fa-home mr-2"></i> Home
+                    </a>
+                    <a href="{{ url_for('logs') }}" class="nav-item px-4 py-2 rounded-2xl text-sm {% if request.endpoint == 'logs' %}font-semibold text-vista-blue-dark bg-azure-light{% else %}font-medium text-text-tertiary hover:bg-azure-light/50 hover:text-vista-blue-dark{% endif %} transition-all duration-300">
+                        <i class="fas fa-file-alt mr-2"></i> Logs
+                    </a>
+                    <a href="{{ fastapi_url }}/docs" target="_blank" class="nav-item px-4 py-2 rounded-2xl text-sm font-medium transition-all duration-300 text-text-tertiary hover:bg-azure-light/50 hover:text-vista-blue-dark">
+                        <i class="fas fa-book mr-2"></i> API Docs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Spacer to prevent content from hiding under fixed navbar -->
+    <div class="h-16"></div>
+
+    <!-- STICKY PROGRESS TRACKER - Single Horizontal Line - All Screen Sizes -->
+    <div class="sticky top-16 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+            <!-- Progress Info Row -->
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs sm:text-sm font-bold text-gray-900" id="global-step-name">Upload Excel Workbook</span>
+                </div>
+                <div class="flex items-center gap-2 px-2 sm:px-3 py-1 rounded-lg bg-blue-50">
+                    <span class="inline-block w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+                    <span class="text-xs font-semibold text-blue-700" id="global-step-percentage">0%</span>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="w-full h-1 sm:h-1.5 rounded-full bg-gray-200 mb-3 overflow-hidden">
+                <div id="global-overall-progress" class="h-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 transition-all duration-700 ease-out" style="width: 0%;"></div>
+            </div>
+            
+            <!-- 4 Steps - ALWAYS Single Horizontal Line (Upload → Preview → Transform → Downloads) -->
+            <div class="flex items-center justify-between w-full">
+                <!-- Step 1: Upload -->
+                <div class="flex flex-col items-center flex-shrink-0" style="width: 20%;">
+                    <div class="relative">
+                        <div id="global-step-1" class="step-icon w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold transition-all duration-300 bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md ring-4 ring-blue-100" role="button" aria-label="Step 1: Upload" tabindex="0">
+                            <i class="fas fa-cloud-upload-alt text-sm sm:text-base md:text-lg"></i>
+                        </div>
+                        <!-- Pulsing ring for current step -->
+                        <div class="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-20"></div>
+                    </div>
+                    <span class="hidden sm:block text-[10px] md:text-xs font-medium text-gray-700 mt-1.5 text-center">Upload</span>
+                    <span class="sm:hidden text-[8px] font-medium text-gray-600 mt-1">1</span>
+                </div>
+                
+                <!-- Connector Line 1 -->
+                <div class="flex-1 h-0.5 sm:h-1 bg-gray-200 mx-1 sm:mx-2 rounded-full overflow-hidden relative" style="max-width: 16%;">
+                    <div id="global-connector-1" class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-500 origin-left" style="width: 0%; transform: scaleX(0);"></div>
+                </div>
+                
+                <!-- Step 2: Preview & Profile -->
+                <div class="flex flex-col items-center flex-shrink-0" style="width: 20%;">
+                    <div id="global-step-2" class="step-icon w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold transition-all duration-300 bg-gray-200 text-gray-400 border-2 border-gray-300" role="button" aria-label="Step 2: Preview & Profile" tabindex="0">
+                        <i class="fas fa-chart-line text-sm sm:text-base md:text-lg"></i>
+                    </div>
+                    <span class="hidden sm:block text-[10px] md:text-xs font-medium text-gray-400 mt-1.5 text-center">Preview</span>
+                    <span class="sm:hidden text-[8px] font-medium text-gray-400 mt-1">2</span>
+                </div>
+                
+                <!-- Connector Line 2 -->
+                <div class="flex-1 h-0.5 sm:h-1 bg-gray-200 mx-1 sm:mx-2 rounded-full overflow-hidden relative" style="max-width: 16%;">
+                    <div id="global-connector-2" class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-500 origin-left" style="width: 0%; transform: scaleX(0);"></div>
+                </div>
+                
+                <!-- Step 3: Transform -->
+                <div class="flex flex-col items-center flex-shrink-0" style="width: 20%;">
+                    <div id="global-step-3" class="step-icon w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold transition-all duration-300 bg-gray-200 text-gray-400 border-2 border-gray-300" role="button" aria-label="Step 3: Transform" tabindex="0">
+                        <i class="fas fa-cogs text-sm sm:text-base md:text-lg"></i>
+                    </div>
+                    <span class="hidden sm:block text-[10px] md:text-xs font-medium text-gray-400 mt-1.5 text-center">Transform</span>
+                    <span class="sm:hidden text-[8px] font-medium text-gray-400 mt-1">3</span>
+                </div>
+                
+                <!-- Connector Line 3 -->
+                <div class="flex-1 h-0.5 sm:h-1 bg-gray-200 mx-1 sm:mx-2 rounded-full overflow-hidden relative" style="max-width: 16%;">
+                    <div id="global-connector-3" class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-500 origin-left" style="width: 0%; transform: scaleX(0);"></div>
+                </div>
+                
+                <!-- Step 4: Downloads -->
+                <div class="flex flex-col items-center flex-shrink-0" style="width: 20%;">
+                    <div id="global-step-4" class="step-icon w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold transition-all duration-300 bg-gray-200 text-gray-400 border-2 border-gray-300" role="button" aria-label="Step 4: Downloads" tabindex="0">
+                        <i class="fas fa-download text-sm sm:text-base md:text-lg"></i>
+                    </div>
+                    <span class="hidden sm:block text-[10px] md:text-xs font-medium text-gray-400 mt-1.5 text-center">Downloads</span>
+                    <span class="sm:hidden text-[8px] font-medium text-gray-400 mt-1">4</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Additional spacer for the progress stepper (60px mobile, 80px desktop) -->
+    <div class="h-20 sm:h-24"></div>
+
+    <!-- Main Content -->
+    <main class="min-h-screen relative z-10" id="main-content">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                {% if error %}
+                <div class="mb-6 p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(248, 113, 113, 0.1) 0%, rgba(239, 68, 68, 0.1) 100%); border: 1px solid rgba(248, 113, 113, 0.2); backdrop-filter: blur(10px);">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-red-800">Error</h3>
+                            <div class="mt-2 text-sm text-red-700 font-medium">
+                                {{ error }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 mt-16" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%); backdrop-filter: blur(20px); border-top: 1px solid rgba(255, 255, 255, 0.3);">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p class="text-text-secondary font-semibold">&copy; Yazaki Morocco 2025</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 z-50 hidden" style="background: rgba(96, 165, 250, 0.1); backdrop-filter: blur(8px);">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="p-8 rounded-2xl shadow-glass-lg" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%); backdrop-filter: blur(20px);">
+                <div class="flex items-center">
+                    <div class="animate-spin rounded-full h-10 w-10 border-4 border-azure border-t-vista-blue mr-4"></div>
+                    <span class="text-xl font-bold text-text-primary">Processing...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-6 right-6 z-50 space-y-3"></div>
+
+    <!-- JavaScript -->
+    <script>
+        // Set global variables for JavaScript
+        window.FASTAPI_URL = '{{ fastapi_url }}';
+        console.log('Template set FASTAPI_URL to:', window.FASTAPI_URL);
+    </script>
+    <script src="{{ url_for('static', filename='js/datecols.js') }}?v={{ range(1000, 9999) | random }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v={{ range(1000, 9999) | random }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,58 @@
+﻿services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    environment:
+      - FASTAPI_HOST=0.0.0.0
+      - FASTAPI_PORT=8000
+      - LOG_LEVEL=INFO
+      - UPLOAD_FOLDER=/app/data/uploads
+      - PROCESSED_FOLDER=/app/data/processed
+      - PIPELINE_OUTPUT_FOLDER=/app/data/pipeline_output
+    volumes:
+      - ./data:/app/data
+    networks:
+      - etl-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:8080"  # Map host port 3000 to container port 8080
+    environment:
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=8080  # Updated to match Dockerfile
+      - PORT=8080        # Added PORT environment variable
+      - FLASK_DEBUG=false
+      - FASTAPI_HOST=backend
+      - FASTAPI_PORT=8000
+      - PROCESSED_FOLDER=/app/data/processed
+      - PIPELINE_OUTPUT_FOLDER=/app/data/pipeline_output
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - backend
+    networks:
+      - etl-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ || exit 1"]  # Updated to check port 8080
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  etl-network:
+    driver: bridge

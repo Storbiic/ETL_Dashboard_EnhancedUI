@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header with Glassmorphism -->
+    <div class="p-8 rounded-2xl shadow-glass transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3);">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-extrabold text-text-primary mb-2">
+                    <i class="fas fa-chart-line mr-4 text-vista-blue"></i>
+                    Data Profile
+                </h1>
+                <p class="text-lg font-medium text-text-secondary">Analyze data quality and statistics</p>
+            </div>
+            <a href="{{ url_for('index') }}" class="glass-btn">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Profile Results with Enhanced Glassmorphism -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Master Sheet Profile -->
+        <div class="p-6 rounded-2xl shadow-glass transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3);">
+            <div class="border-b border-azure/30 pb-4 mb-6">
+                <h2 class="text-2xl font-bold text-text-primary flex items-center">
+                    <i class="fas fa-list-alt mr-3 text-vista-blue"></i>
+                    {{ master_sheet }} Profile
+                </h2>
+            </div>
+            <div id="master-profile" class="space-y-4 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-vista-blue/30 scrollbar-track-azure/20">
+                <div class="flex items-center justify-center py-12">
+                    <div class="animate-spin rounded-full h-10 w-10 border-4 border-azure border-t-vista-blue mr-4"></div>
+                    <span class="text-lg font-medium text-text-secondary">Analyzing data...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Sheet Profile -->
+        <div class="p-6 rounded-2xl shadow-glass transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3);">
+            <div class="border-b border-azure/30 pb-4 mb-6">
+                <h2 class="text-2xl font-bold text-text-primary flex items-center">
+                    <i class="fas fa-chart-line mr-3 text-vista-blue"></i>
+                    {{ status_sheet }} Profile
+                </h2>
+            </div>
+            <div id="status-profile" class="space-y-4 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-vista-blue/30 scrollbar-track-azure/20">
+                <div class="flex items-center justify-center py-12">
+                    <div class="animate-spin rounded-full h-10 w-10 border-4 border-azure border-t-vista-blue mr-4"></div>
+                    <span class="text-lg font-medium text-text-secondary">Analyzing data...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Summary with Glassmorphism -->
+    <div id="comparison-section" class="p-6 rounded-2xl shadow-glass transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1 hidden" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3);">
+        <h2 class="text-2xl font-bold text-text-primary mb-6 flex items-center">
+            <i class="fas fa-balance-scale mr-3 text-vista-blue"></i>
+            Sheet Comparison
+        </h2>
+        <div id="comparison-content">
+            <!-- Comparison content will be loaded here -->
+        </div>
+    </div>
+
+    <!-- ETL Configuration with Glassmorphism -->
+    <div class="p-6 rounded-2xl shadow-glass transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3);">
+        <h2 class="text-2xl font-bold text-text-primary mb-6 flex items-center">
+            <i class="fas fa-cogs mr-3 text-vista-blue"></i>
+            ETL Configuration
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <label class="block text-lg font-bold text-text-primary mb-3">ID Column</label>
+                <input type="text" id="id-column" value="YAZAKI PN" 
+                       class="w-full border border-azure/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-vista-blue focus:border-transparent transition-all duration-300 bg-white/70 backdrop-blur-sm text-lg">
+                <p class="text-sm text-text-secondary mt-2">Column containing part identifiers</p>
+            </div>
+            
+            <div>
+                <label class="block text-lg font-bold text-text-primary mb-3">Date Columns</label>
+                <input type="text" id="date-columns" placeholder="Approved Date, Promised Date" 
+                       class="w-full border border-azure/50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-vista-blue focus:border-transparent transition-all duration-300 bg-white/70 backdrop-blur-sm text-lg">
+                <p class="text-sm text-text-secondary mt-2">Comma-separated list of date columns</p>
+            </div>
+        </div>
+        
+        <div class="mt-8">
+            <h3 class="text-xl font-bold text-text-primary mb-4">Auto-detected Date Columns</h3>
+            <div id="detected-dates" class="flex flex-wrap gap-3">
+                <!-- Auto-detected date columns will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions with Enhanced Styling -->
+    <div class="flex justify-between items-center">
+        <button id="back-btn" class="glass-btn-secondary">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Preview
+        </button>
+        
+        <button id="transform-btn" class="glass-btn-success">
+            <i class="fas fa-play mr-2"></i>
+            Run ETL Transform
+        </button>
+    </div>
+</div>
+
+<script>
+const fileId = '{{ file_id }}';
+const masterSheet = '{{ master_sheet }}';
+const statusSheet = '{{ status_sheet }}';
+// Use the global FASTAPI_URL from app.js instead of declaring it again
+
+let masterProfile = null;
+let statusProfile = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadProfiles();
+    
+    document.getElementById('back-btn').addEventListener('click', function() {
+        window.history.back();
+    });
+    
+    document.getElementById('transform-btn').addEventListener('click', function() {
+        runTransform();
+    });
+});
+
+async function loadProfiles() {
+    try {
+        // Load both profiles in parallel
+        const [masterResponse, statusResponse] = await Promise.all([
+            fetch(`${FASTAPI_URL}/api/profile?file_id=${fileId}&sheet=${encodeURIComponent(masterSheet)}`),
+            fetch(`${FASTAPI_URL}/api/profile?file_id=${fileId}&sheet=${encodeURIComponent(statusSheet)}`)
+        ]);
+        
+        if (!masterResponse.ok || !statusResponse.ok) {
+            throw new Error('Failed to load profiles');
+        }
+        
+        masterProfile = await masterResponse.json();
+        statusProfile = await statusResponse.json();
+        
+        // Render profiles
+        renderProfile(masterProfile, 'master-profile');
+        renderProfile(statusProfile, 'status-profile');
+        
+        // Load comparison
+        loadComparison();
+        
+        // Auto-detect date columns
+        detectDateColumns();
+        
+    } catch (error) {
+        console.error('Error loading profiles:', error);
+        showToast(`Failed to load data profiles: ${error.message}`, 'error');
+    }
+}
+
+function renderProfile(profile, containerId) {
+    const container = document.getElementById(containerId);
+    
+    // Summary stats
+    let html = `
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="text-center p-3 bg-blue-50 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600">${profile.total_rows.toLocaleString()}</div>
+                <div class="text-sm text-gray-600">Rows</div>
+            </div>
+            <div class="text-center p-3 bg-green-50 rounded-lg">
+                <div class="text-2xl font-bold text-green-600">${profile.total_cols}</div>
+                <div class="text-sm text-gray-600">Columns</div>
+            </div>
+        </div>
+    `;
+    
+    if (profile.duplicate_rows > 0) {
+        html += `
+            <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-yellow-600 mr-2"></i>
+                    <span class="text-sm text-yellow-800">
+                        ${profile.duplicate_rows} duplicate rows found
+                    </span>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Column details
+    html += '<div class="space-y-2">';
+    html += '<h4 class="font-medium text-gray-900">Column Quality</h4>';
+    
+    profile.columns.forEach(col => {
+        const nullPercentage = col.null_percentage;
+        const qualityColor = nullPercentage < 10 ? 'green' : nullPercentage < 30 ? 'yellow' : 'red';
+        
+        html += `
+            <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                <div class="flex-1">
+                    <div class="font-medium text-sm">${escapeHtml(col.name)}</div>
+                    <div class="text-xs text-gray-500">${col.dtype} • ${col.unique_count} unique</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm font-medium text-${qualityColor}-600">
+                        ${(100 - nullPercentage).toFixed(1)}% complete
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        ${col.non_null_count.toLocaleString()} / ${(col.non_null_count + col.null_count).toLocaleString()}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    
+    container.innerHTML = html;
+}
+
+async function loadComparison() {
+    try {
+        const response = await fetch(`${FASTAPI_URL}/api/profile/${fileId}/compare?sheet1=${encodeURIComponent(masterSheet)}&sheet2=${encodeURIComponent(statusSheet)}`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to load comparison');
+        }
+        
+        const comparison = await response.json();
+        renderComparison(comparison);
+        
+        document.getElementById('comparison-section').classList.remove('hidden');
+        
+    } catch (error) {
+        console.error('Error loading comparison:', error);
+    }
+}
+
+function renderComparison(comparison) {
+    const container = document.getElementById('comparison-content');
+    
+    let html = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="text-center p-3 bg-blue-50 rounded-lg">
+                <div class="text-lg font-bold text-blue-600">${comparison.compatibility.common_columns.length}</div>
+                <div class="text-sm text-gray-600">Common Columns</div>
+            </div>
+            <div class="text-center p-3 bg-orange-50 rounded-lg">
+                <div class="text-lg font-bold text-orange-600">${comparison.compatibility.size_difference.toLocaleString()}</div>
+                <div class="text-sm text-gray-600">Row Difference</div>
+            </div>
+            <div class="text-center p-3 bg-purple-50 rounded-lg">
+                <div class="text-lg font-bold text-purple-600">${comparison.compatibility.column_difference}</div>
+                <div class="text-sm text-gray-600">Column Difference</div>
+            </div>
+        </div>
+    `;
+    
+    if (comparison.recommendations && comparison.recommendations.length > 0) {
+        html += '<div class="space-y-2">';
+        html += '<h4 class="font-medium text-gray-900">Recommendations</h4>';
+        comparison.recommendations.forEach(rec => {
+            html += `
+                <div class="flex items-start p-2 bg-yellow-50 border border-yellow-200 rounded">
+                    <i class="fas fa-lightbulb text-yellow-600 mr-2 mt-0.5"></i>
+                    <span class="text-sm text-yellow-800">${escapeHtml(rec)}</span>
+                </div>
+            `;
+        });
+        html += '</div>';
+    }
+    
+    container.innerHTML = html;
+}
+
+function detectDateColumns() {
+    if (!masterProfile) return;
+    
+    const dateColumns = masterProfile.columns
+        .filter(col => col.dtype === 'date' || col.name.toLowerCase().includes('date'))
+        .map(col => col.name);
+    
+    // Filter out excluded date columns
+    const filteredDateColumns = dateColumns.filter(col => !EXCLUDED_DATE_COLUMNS.includes(col));
+    
+    // Update UI with filtered columns
+    updateDetectedDatesDisplay(filteredDateColumns);
+    
+    if (filteredDateColumns.length > 0) {
+        // Auto-populate date columns input
+        document.getElementById('date-columns').value = filteredDateColumns.join(', ');
+    }
+}
+
+async function runTransform() {
+    const transformBtn = document.getElementById('transform-btn');
+    const originalText = transformBtn.innerHTML;
+    const originalClasses = transformBtn.className;
+    
+    try {
+        // Disable button and show loading with animated spinner
+        transformBtn.disabled = true;
+        transformBtn.className = 'glass-btn-success opacity-75 cursor-wait animate-pulse';
+        transformBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><span>Processing ETL Transform...</span>';
+        
+        // Show toast notification
+        showToast('Starting ETL transformation...', 'info');
+        
+        // Prepare request
+        const dateColumns = document.getElementById('date-columns').value
+            .split(',')
+            .map(col => col.trim())
+            .filter(col => col.length > 0);
+        
+        const request = {
+            file_id: fileId,
+            master_sheet: masterSheet,
+            status_sheet: statusSheet,
+            options: {
+                id_col: document.getElementById('id-column').value || 'YAZAKI PN',
+                date_cols: dateColumns
+            }
+        };
+        
+        console.log('🔧 Sending transform request:', request);
+
+        const response = await fetch('/api/transform', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(request)
+        });
+
+        console.log('🔧 Transform response status:', response.status);
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Transform failed');
+        }
+        
+        const result = await response.json();
+        
+        console.log('🔧 Transform result:', result);
+
+        if (result.success) {
+            // Store result in sessionStorage for results page
+            sessionStorage.setItem(`transform_result_${fileId}`, JSON.stringify(result));
+
+            showToast('ETL transformation completed successfully!', 'success');
+
+            // Redirect to results page
+            setTimeout(() => {
+                window.location.href = `/results?file_id=${fileId}`;
+            }, 1500);
+        } else {
+            throw new Error(result.error || 'Transform failed');
+        }
+        
+    } catch (error) {
+        console.error('Transform error:', error);
+        showToast(`Transform failed: ${error.message}`, 'error');
+        
+        // Re-enable button and restore original state
+        transformBtn.disabled = false;
+        transformBtn.className = originalClasses;
+        transformBtn.innerHTML = originalText;
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
+        type === 'error' ? 'bg-red-500 text-white' : 
+        type === 'success' ? 'bg-green-500 text-white' : 
+        'bg-blue-500 text-white'
+    }`;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+</script>
+{% endblock %}

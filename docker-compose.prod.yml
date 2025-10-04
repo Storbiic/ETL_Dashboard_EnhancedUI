@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  backend:
+    image: etl_dashboard-backend:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - FASTAPI_HOST=0.0.0.0
+      - FASTAPI_PORT=8000
+      - FASTAPI_RELOAD=false
+      - LOG_LEVEL=INFO
+      - UPLOAD_FOLDER=/app/data/uploads
+      - PROCESSED_FOLDER=/app/data/processed
+    volumes:
+      - etl_data:/app/data
+    networks:
+      - etl-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    image: etl_dashboard-frontend:latest
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
+      - FLASK_DEBUG=false
+      - FASTAPI_HOST=backend
+      - FASTAPI_PORT=8000
+    volumes:
+      - etl_data:/app/data
+    depends_on:
+      - backend
+    networks:
+      - etl-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  etl-network:
+    driver: bridge
+
+volumes:
+  etl_data:
+    driver: local

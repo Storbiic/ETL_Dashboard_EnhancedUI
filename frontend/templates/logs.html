@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}System Logs{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="p-8 rounded-2xl shadow-glass transition-all duration-300" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3);">
+        <div class="text-center">
+            <h1 class="text-4xl font-extrabold text-text-primary mb-2">
+                <i class="fas fa-clipboard-list mr-4 text-vista-blue"></i>
+                System Logs
+            </h1>
+            <p class="text-lg font-medium text-text-secondary">Real-time monitoring and analysis of ETL operations</p>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Panel -->
+        <div class="lg:col-span-2 p-6 rounded-2xl shadow-glass" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3);">
+            <!-- Controls -->
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <select id="logLevel" class="px-4 py-2 rounded-xl border border-gray-200 bg-white text-text-primary focus:outline-none focus:ring-2 focus:ring-vista-blue">
+                        <option value="all">All Levels</option>
+                        <option value="info">Info</option>
+                        <option value="warning">Warning</option>
+                        <option value="error">Error</option>
+                    </select>
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200">
+                        <input type="checkbox" id="autoRefresh" checked class="w-4 h-4 accent-vista-blue">
+                        <label for="autoRefresh" class="text-sm font-medium text-text-secondary cursor-pointer">Auto-refresh</label>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="refreshBtn" class="glass-btn"><i class="fas fa-sync-alt mr-2"></i>Refresh</button>
+                    <button id="clearBtn" class="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold"><i class="fas fa-trash mr-2"></i>Clear</button>
+                </div>
+            </div>
+            <!-- Logs Display -->
+            <div id="logsPanel" class="rounded-xl p-4 max-h-96 overflow-y-auto" style="background: rgba(17, 24, 39, 0.95); scrollbar-width: thin;">
+                <div class="flex items-center justify-center py-12">
+                    <div class="animate-spin rounded-full h-10 w-10 border-4 border-azure border-t-vista-blue mr-4"></div>
+                    <span class="text-lg text-gray-300">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Progress -->
+            <div class="p-6 rounded-2xl shadow-glass" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3);">
+                <h3 class="text-xl font-bold text-text-primary mb-4 flex items-center"><i class="fas fa-tasks mr-3 text-vista-blue"></i>Progress Monitor</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-medium text-text-secondary">Overall Progress</span>
+                            <span id="progressPercentage" class="text-sm font-bold text-vista-blue">0%</span>
+                        </div>
+                        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div id="progressBar" class="h-full bg-gradient-to-r from-vista-blue to-azure" style="width:0%"></div>
+                        </div>
+                    </div>
+                    <div id="operationStatus" class="p-4 rounded-xl" style="background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(37,99,235,0.1)); border: 1px solid rgba(59,130,246,0.2);">
+                        <h4 id="operationTitle" class="font-bold text-blue-900">System Ready</h4>
+                        <p id="operationDescription" class="text-sm text-blue-800">Waiting for ETL operations...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="p-6 rounded-2xl shadow-glass" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3);">
+                <h3 class="text-xl font-bold text-text-primary mb-4 flex items-center"><i class="fas fa-chart-bar mr-3 text-vista-blue"></i>Log Statistics</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between py-2 border-b"><span class="text-sm font-medium text-text-secondary">TOTAL LOGS</span><span id="totalLogs" class="text-lg font-bold">0</span></div>
+                    <div class="flex justify-between py-2 border-b"><span class="text-sm font-medium text-text-secondary">ERRORS</span><span id="errorCount" class="text-lg font-bold text-red-600">0</span></div>
+                    <div class="flex justify-between py-2 border-b"><span class="text-sm font-medium text-text-secondary">WARNINGS</span><span id="warningCount" class="text-lg font-bold text-amber-600">0</span></div>
+                    <div class="flex justify-between py-2 border-b"><span class="text-sm font-medium text-text-secondary">INFO MESSAGES</span><span id="infoCount" class="text-lg font-bold text-green-600">0</span></div>
+                    <div class="flex justify-between py-2"><span class="text-sm font-medium text-text-secondary">LAST UPDATE</span><span id="lastUpdate" class="text-sm font-bold">9:38:12 AM</span></div>
+                </div>
+            </div>
+
+            <!-- Connection -->
+            <div class="p-6 rounded-2xl shadow-glass" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3);">
+                <h3 class="text-xl font-bold text-text-primary mb-4 flex items-center"><i class="fas fa-wifi mr-3 text-vista-blue"></i>Connection</h3>
+                <div id="connectionStatus" class="flex items-center gap-3">
+                    <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-sm font-medium text-green-700">Connected</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.log-entry{margin-bottom:.75rem;padding:.75rem;border-radius:.5rem;border-left:3px solid transparent;background:rgba(31,41,55,.6);transition:all .3s}
+.log-entry:hover{background:rgba(31,41,55,.8);transform:translateX(4px)}
+.log-entry.info{border-left-color:#3b82f6;background:rgba(59,130,246,.1)}
+.log-entry.warning{border-left-color:#f59e0b;background:rgba(245,158,11,.1)}
+.log-entry.error{border-left-color:#ef4444;background:rgba(239,68,68,.1)}
+.log-level{display:inline-flex;padding:.25rem .5rem;border-radius:.375rem;font-size:.75rem;font-weight:700;min-width:60px;text-transform:uppercase}
+.log-level.info{background:rgba(59,130,246,.2);color:#60a5fa}
+.log-level.warning{background:rgba(245,158,11,.2);color:#fbbf24}
+.log-level.error{background:rgba(239,68,68,.2);color:#f87171}
+.log-timestamp{color:#9ca3af;font-size:.75rem}
+.log-message{color:#e5e7eb;word-wrap:break-word}
+</style>
+
+<script>
+class LogsManager{constructor(){this.logs=[];this.filteredLogs=[];this.autoRefreshInterval=null;this.init()}init(){this.fetchLogs();document.getElementById('refreshBtn').addEventListener('click',()=>this.fetchLogs());document.getElementById('clearBtn').addEventListener('click',()=>this.clearLogs());document.getElementById('logLevel').addEventListener('change',()=>this.applyFilters());document.getElementById('autoRefresh').addEventListener('change',(e)=>this.toggleAutoRefresh(e.target.checked));this.toggleAutoRefresh(true)}toggleAutoRefresh(enabled){if(enabled&&!this.autoRefreshInterval){this.autoRefreshInterval=setInterval(()=>this.fetchLogs(),2000)}else if(!enabled&&this.autoRefreshInterval){clearInterval(this.autoRefreshInterval);this.autoRefreshInterval=null}}async fetchLogs(){try{const response=await fetch('/api/logs/recent');if(!response.ok)throw new Error('Failed');const data=await response.json();this.logs=data.logs||[];this.applyFilters();this.updateStats();this.updateConnectionStatus(true)}catch(error){console.error(error);this.updateConnectionStatus(false)}}clearLogs(){this.logs=[];this.filteredLogs=[];this.renderLogs();this.updateStats()}updateConnectionStatus(connected){const el=document.getElementById('connectionStatus');el.innerHTML=connected?'<div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div><span class="text-sm font-medium text-green-700">Connected</span>':'<div class="w-3 h-3 bg-red-500 rounded-full"></div><span class="text-sm font-medium text-red-700">Disconnected</span>'}applyFilters(){const levelFilter=document.getElementById('logLevel').value;this.filteredLogs=this.logs.filter(log=>{if(levelFilter!=='all'&&log.level&&log.level.toLowerCase()!==levelFilter.toLowerCase())return false;return true});this.renderLogs()}renderLogs(){const panel=document.getElementById('logsPanel');if(this.filteredLogs.length===0){panel.innerHTML='<div class="flex flex-col items-center justify-center py-12"><i class="fas fa-info-circle text-4xl text-gray-400 mb-3"></i><p class="text-gray-500 font-medium">No logs available</p></div>';return}const html=this.filteredLogs.map(log=>{const level=(log.level||'INFO').toLowerCase();const time=this.formatTime(log.timestamp);const msg=log.message||'No message';return `<div class="log-entry ${level}"><div class="flex gap-3 mb-2"><span class="log-level ${level}">${level.toUpperCase()}</span><span class="log-timestamp">${time}</span></div><div class="log-message">${this.escape(msg)}</div></div>`}).join('');panel.innerHTML=html;panel.scrollTop=panel.scrollHeight}updateStats(){const total=this.logs.length;const errors=this.logs.filter(l=>(l.level||'').toUpperCase()==='ERROR').length;const warnings=this.logs.filter(l=>(l.level||'').toUpperCase()==='WARNING').length;const infos=this.logs.filter(l=>(l.level||'').toUpperCase()==='INFO').length;document.getElementById('totalLogs').textContent=total;document.getElementById('errorCount').textContent=errors;document.getElementById('warningCount').textContent=warnings;document.getElementById('infoCount').textContent=infos;document.getElementById('lastUpdate').textContent=new Date().toLocaleTimeString()}formatTime(ts){if(!ts)return'N/A';return new Date(ts).toLocaleTimeString()}escape(text){const div=document.createElement('div');div.textContent=text;return div.innerHTML}}
+document.addEventListener('DOMContentLoaded',()=>{window.logsManager=new LogsManager()});
+</script>
+{% endblock %}

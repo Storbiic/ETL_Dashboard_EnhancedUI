@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - BI ETL Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .logs-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .logs-main {
+            flex: 1;
+        }
+
+        .logs-sidebar {
+            width: 300px;
+            flex-shrink: 0;
+        }
+        
+        .logs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .logs-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .log-level-filter {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .refresh-btn {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: #0056b3;
+        }
+        
+        .auto-refresh-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .logs-panel {
+            background: #1e1e1e;
+            color: #f8f8f2;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            max-height: 600px;
+            overflow-y: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 4px solid transparent;
+        }
+        
+        .log-entry.info {
+            border-left-color: #17a2b8;
+            background: rgba(23, 162, 184, 0.1);
+        }
+        
+        .log-entry.warning {
+            border-left-color: #ffc107;
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+        }
+        
+        .log-entry.error {
+            border-left-color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+            color: #ff6b6b;
+        }
+        
+        .log-entry.debug {
+            border-left-color: #6c757d;
+            background: rgba(108, 117, 125, 0.1);
+            color: #adb5bd;
+        }
+        
+        .log-timestamp {
+            color: #6c757d;
+            font-size: 12px;
+        }
+        
+        .log-level {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 8px;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .log-level.INFO {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .log-level.WARNING {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .log-level.ERROR {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .log-level.DEBUG {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .log-message {
+            word-wrap: break-word;
+        }
+        
+        .log-details {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #adb5bd;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.connected {
+            background: #28a745;
+        }
+        
+        .status-indicator.disconnected {
+            background: #dc3545;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .no-logs {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .status-sidebar {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .status-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .progress-section {
+            margin-bottom: 25px;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-percentage {
+            font-size: 16px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .progress-bar.error {
+            background: linear-gradient(90deg, #dc3545, #c82333);
+        }
+
+        .progress-bar.complete {
+            background: linear-gradient(90deg, #28a745, #1e7e34);
+        }
+
+        .progress-status {
+            font-size: 12px;
+            color: #6c757d;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .stats-section {
+            margin-bottom: 25px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .stat-value.error {
+            color: #dc3545;
+        }
+
+        .stat-value.warning {
+            color: #ffc107;
+        }
+
+        .current-operation {
+            margin-bottom: 25px;
+        }
+
+        .operation-status {
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+            background: rgba(0, 123, 255, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .operation-status.idle {
+            border-left-color: #6c757d;
+            background: rgba(108, 117, 125, 0.1);
+        }
+
+        .operation-status.processing {
+            border-left-color: #007bff;
+            background: rgba(0, 123, 255, 0.1);
+        }
+
+        .operation-status.error {
+            border-left-color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        .operation-status.complete {
+            border-left-color: #28a745;
+            background: rgba(40, 167, 69, 0.1);
+        }
+
+        .operation-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .operation-description {
+            font-size: 12px;
+            color: #6c757d;
+            line-height: 1.4;
+        }
+
+        .connection-section {
+            text-align: center;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>BI ETL Dashboard</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/">Upload</a>
+                <a href="/logs" class="active">Logs</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="logs-container">
+        <!-- Main Logs Section -->
+        <div class="logs-main">
+            <div class="logs-header">
+                <div>
+                    <h2>System Logs</h2>
+                    <p>Real-time monitoring of ETL operations</p>
+                </div>
+                <div class="logs-controls">
+                    <select class="log-level-filter" id="levelFilter">
+                        <option value="">All Levels</option>
+                        <option value="ERROR">Errors</option>
+                        <option value="WARNING">Warnings</option>
+                        <option value="INFO">Info</option>
+                        <option value="DEBUG">Debug</option>
+                    </select>
+                    <button class="refresh-btn" onclick="refreshLogs()">Refresh</button>
+                    <div class="auto-refresh-toggle">
+                        <input type="checkbox" id="autoRefresh" checked>
+                        <label for="autoRefresh">Auto-refresh</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="logs-panel" id="logsPanel">
+                <div class="loading">Loading logs...</div>
+            </div>
+        </div>
+
+        <!-- Status Sidebar -->
+        <div class="logs-sidebar">
+            <div class="status-sidebar">
+                <div class="status-title">ETL Progress Monitor</div>
+
+                <!-- Progress Section -->
+                <div class="progress-section">
+                    <div class="progress-label">
+                        <span>Overall Progress</span>
+                        <span class="progress-percentage" id="progressPercentage">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-status" id="progressStatus">Idle</div>
+                </div>
+
+                <!-- Current Operation -->
+                <div class="current-operation">
+                    <div class="operation-status idle" id="operationStatus">
+                        <div class="operation-title" id="operationTitle">System Ready</div>
+                        <div class="operation-description" id="operationDescription">Waiting for ETL operations...</div>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="stats-section">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Logs</span>
+                        <span class="stat-value" id="totalLogs">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Errors</span>
+                        <span class="stat-value error" id="errorCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Warnings</span>
+                        <span class="stat-value warning" id="warningCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Last Update</span>
+                        <span class="stat-value" id="lastUpdate">Never</span>
+                    </div>
+                </div>
+
+                <!-- Connection Status -->
+                <div class="connection-section">
+                    <span class="status-indicator connected" id="connectionStatus"></span>
+                    <span id="connectionText">Connected</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let logs = [];
+        let filteredLogs = [];
+        let autoRefreshInterval;
+        let currentProgress = 0;
+        let currentOperation = 'idle';
+        let operationSteps = {
+            'idle': { progress: 0, title: 'System Ready', description: 'Waiting for ETL operations...' },
+            'upload': { progress: 10, title: 'File Upload', description: 'Uploading Excel file...' },
+            'reading': { progress: 20, title: 'Reading Sheets', description: 'Loading Excel sheets...' },
+            'masterbom_processing': { progress: 40, title: 'Processing MasterBOM', description: 'Cleaning and transforming master data...' },
+            'status_processing': { progress: 70, title: 'Processing Status', description: 'Processing status sheet data...' },
+            'transformation': { progress: 85, title: 'ETL Transformation', description: 'Applying business rules and transformations...' },
+            'complete': { progress: 100, title: 'Complete', description: 'ETL process completed successfully!' },
+            'error': { progress: 0, title: 'Error', description: 'An error occurred during processing.' }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshLogs();
+            setupAutoRefresh();
+            setupFilters();
+            updateProgress(0, 'idle');
+        });
+        
+        function setupAutoRefresh() {
+            const autoRefreshCheckbox = document.getElementById('autoRefresh');
+            
+            function toggleAutoRefresh() {
+                if (autoRefreshCheckbox.checked) {
+                    autoRefreshInterval = setInterval(refreshLogs, 5000); // Refresh every 5 seconds
+                } else {
+                    clearInterval(autoRefreshInterval);
+                }
+            }
+            
+            autoRefreshCheckbox.addEventListener('change', toggleAutoRefresh);
+            toggleAutoRefresh(); // Start auto-refresh if checked
+        }
+        
+        function setupFilters() {
+            const levelFilter = document.getElementById('levelFilter');
+            levelFilter.addEventListener('change', applyFilters);
+        }
+        
+        function refreshLogs() {
+            // Fetch logs and progress status in parallel
+            Promise.all([
+                fetch('/api/logs/backend').then(r => r.json()),
+                fetch('/api/progress/status').then(r => r.json())
+            ])
+            .then(([logsData, progressData]) => {
+                // Handle logs
+                if (logsData.error) {
+                    showError(logsData.error);
+                    updateConnectionStatus(false);
+                } else {
+                    logs = logsData.logs || [];
+                    updateStats();
+                    applyFilters();
+                    updateConnectionStatus(true);
+                }
+
+                // Handle progress
+                if (progressData.error) {
+                    console.warn('Failed to fetch progress:', progressData.error);
+                    analyzeProgressFromLogs(); // Fallback to log analysis
+                } else {
+                    updateProgressFromAPI(progressData);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                showError('Failed to fetch logs: ' + error.message);
+                updateConnectionStatus(false);
+                updateProgress(0, 'error');
+            });
+        }
+
+        function updateProgressFromAPI(progressData) {
+            const progress = progressData.progress || 0;
+            const status = progressData.status || 'idle';
+            const operation = progressData.operation || 'System Ready';
+            const description = progressData.description || 'Waiting for ETL operations...';
+
+            updateProgressWithDetails(progress, status, operation, description);
+        }
+
+        function analyzeProgressFromLogs() {
+            if (logs.length === 0) {
+                updateProgress(0, 'idle');
+                return;
+            }
+
+            // Get the most recent logs to determine current state
+            const recentLogs = logs.slice(-10);
+            let detectedOperation = 'idle';
+            let hasError = false;
+
+            // Check for errors first
+            for (let log of recentLogs) {
+                if ((log.level || log.severity || '').toUpperCase() === 'ERROR') {
+                    hasError = true;
+                    break;
+                }
+            }
+
+            if (hasError) {
+                updateProgress(currentProgress, 'error');
+                return;
+            }
+
+            // Analyze log messages to determine current operation
+            for (let log of recentLogs.reverse()) {
+                const message = (log.message || log.event || '').toLowerCase();
+
+                if (message.includes('file uploaded') || message.includes('uploading')) {
+                    detectedOperation = 'upload';
+                    break;
+                } else if (message.includes('reading excel') || message.includes('found') && message.includes('sheets')) {
+                    detectedOperation = 'reading';
+                    break;
+                } else if (message.includes('masterbom processing') || message.includes('processing masterbom')) {
+                    detectedOperation = 'masterbom_processing';
+                    break;
+                } else if (message.includes('status sheet processing') || message.includes('processing status')) {
+                    detectedOperation = 'status_processing';
+                    break;
+                } else if (message.includes('etl transformation') || message.includes('transformation')) {
+                    detectedOperation = 'transformation';
+                    break;
+                } else if (message.includes('complete') && (message.includes('processing') || message.includes('transformation'))) {
+                    detectedOperation = 'complete';
+                    break;
+                }
+            }
+
+            updateProgress(operationSteps[detectedOperation].progress, detectedOperation);
+        }
+
+        function updateProgress(percentage, operation) {
+            const stepInfo = operationSteps[operation] || operationSteps['idle'];
+            updateProgressWithDetails(percentage, operation, stepInfo.title, stepInfo.description);
+        }
+
+        function updateProgressWithDetails(percentage, operation, title, description) {
+            currentProgress = percentage;
+            currentOperation = operation;
+
+            const progressBar = document.getElementById('progressBar');
+            const progressPercentage = document.getElementById('progressPercentage');
+            const progressStatus = document.getElementById('progressStatus');
+            const operationStatus = document.getElementById('operationStatus');
+            const operationTitle = document.getElementById('operationTitle');
+            const operationDescription = document.getElementById('operationDescription');
+
+            // Update progress bar
+            progressBar.style.width = percentage + '%';
+            progressPercentage.textContent = percentage + '%';
+
+            // Update progress bar color based on operation
+            progressBar.className = 'progress-bar';
+            if (operation === 'error') {
+                progressBar.classList.add('error');
+            } else if (operation === 'complete') {
+                progressBar.classList.add('complete');
+            }
+
+            // Update operation status
+            operationTitle.textContent = title;
+            operationDescription.textContent = description;
+            progressStatus.textContent = title;
+
+            // Update operation status styling
+            operationStatus.className = 'operation-status ' + operation;
+        }
+        
+        function applyFilters() {
+            const levelFilter = document.getElementById('levelFilter').value;
+            
+            filteredLogs = logs.filter(log => {
+                if (levelFilter && log.level && log.level.toUpperCase() !== levelFilter) {
+                    return false;
+                }
+                return true;
+            });
+            
+            renderLogs();
+        }
+        
+        function renderLogs() {
+            const logsPanel = document.getElementById('logsPanel');
+            
+            if (filteredLogs.length === 0) {
+                logsPanel.innerHTML = '<div class="no-logs">No logs available</div>';
+                return;
+            }
+            
+            const logsHtml = filteredLogs.map(log => {
+                const level = (log.level || log.severity || 'INFO').toUpperCase();
+                const timestamp = formatTimestamp(log.timestamp);
+                const message = log.message || log.event || 'No message';
+                
+                let details = '';
+                if (log.file_id) details += `File: ${log.file_id} `;
+                if (log.sheet) details += `Sheet: ${log.sheet} `;
+                if (log.rows) details += `Rows: ${log.rows} `;
+                if (log.cols) details += `Cols: ${log.cols} `;
+                
+                return `
+                    <div class="log-entry ${level.toLowerCase()}">
+                        <div>
+                            <span class="log-level ${level}">${level}</span>
+                            <span class="log-timestamp">${timestamp}</span>
+                            <span class="log-message">${escapeHtml(message)}</span>
+                        </div>
+                        ${details ? `<div class="log-details">${escapeHtml(details)}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            logsPanel.innerHTML = logsHtml;
+            logsPanel.scrollTop = logsPanel.scrollHeight; // Auto-scroll to bottom
+        }
+        
+        function updateStats() {
+            const totalLogs = logs.length;
+            const errorCount = logs.filter(log => (log.level || log.severity || '').toUpperCase() === 'ERROR').length;
+            const warningCount = logs.filter(log => (log.level || log.severity || '').toUpperCase() === 'WARNING').length;
+            const lastUpdate = new Date().toLocaleTimeString();
+            
+            document.getElementById('totalLogs').textContent = totalLogs;
+            document.getElementById('errorCount').textContent = errorCount;
+            document.getElementById('warningCount').textContent = warningCount;
+            document.getElementById('lastUpdate').textContent = lastUpdate;
+        }
+        
+        function updateConnectionStatus(connected) {
+            const statusIndicator = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('connectionText');
+            
+            if (connected) {
+                statusIndicator.className = 'status-indicator connected';
+                statusText.textContent = 'Connected';
+            } else {
+                statusIndicator.className = 'status-indicator disconnected';
+                statusText.textContent = 'Disconnected';
+            }
+        }
+        
+        function showError(message) {
+            const logsPanel = document.getElementById('logsPanel');
+            logsPanel.innerHTML = `<div class="log-entry error">
+                <div>
+                    <span class="log-level ERROR">ERROR</span>
+                    <span class="log-timestamp">${new Date().toLocaleTimeString()}</span>
+                    <span class="log-message">${escapeHtml(message)}</span>
+                </div>
+            </div>`;
+        }
+        
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return 'Unknown';
+            try {
+                return new Date(timestamp).toLocaleTimeString();
+            } catch (e) {
+                return timestamp;
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
