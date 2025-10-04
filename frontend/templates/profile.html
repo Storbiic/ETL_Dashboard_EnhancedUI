@@ -109,6 +109,87 @@
     </div>
 </div>
 
+<!-- ETL Loading Popup Modal -->
+<div id="etl-loading-modal" class="fixed inset-0 z-50 flex items-center justify-center" style="display: none; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);">
+    <div class="p-8 rounded-2xl shadow-2xl transform transition-all duration-500 scale-95" style="background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.95) 100%); backdrop-filter: blur(20px); border: 2px solid rgba(127, 158, 195, 0.5); max-width: 500px; width: 90%;">
+        <div class="text-center">
+            <!-- Animated Icon -->
+            <div class="mb-6 relative inline-block">
+                <div class="absolute inset-0 animate-ping opacity-20" style="background: radial-gradient(circle, #7f9ec3 0%, transparent 70%); border-radius: 50%;"></div>
+                <div class="relative w-24 h-24 mx-auto flex items-center justify-center rounded-full" style="background: linear-gradient(135deg, #7f9ec3 0%, #5d7ea3 100%); box-shadow: 0 8px 32px rgba(127, 158, 195, 0.4);">
+                    <i class="fas fa-cogs text-4xl text-white animate-spin" style="animation-duration: 2s;"></i>
+                </div>
+            </div>
+            
+            <!-- Title -->
+            <h3 class="text-3xl font-bold mb-3" style="color: #060505;">
+                Running ETL Transformation
+            </h3>
+            
+            <!-- Description -->
+            <p class="text-lg mb-6" style="color: #666;">
+                Please wait while we process your data...
+            </p>
+            
+            <!-- Progress Animation -->
+            <div class="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
+                <div class="absolute top-0 left-0 h-full rounded-full animate-progress" style="background: linear-gradient(90deg, #7f9ec3 0%, #5d7ea3 50%, #7f9ec3 100%); width: 100%; animation: progress-slide 2s ease-in-out infinite;"></div>
+            </div>
+            
+            <!-- Status Text -->
+            <div class="flex items-center justify-center space-x-2">
+                <div class="w-2 h-2 rounded-full animate-pulse" style="background-color: #10b981; animation-delay: 0s;"></div>
+                <div class="w-2 h-2 rounded-full animate-pulse" style="background-color: #10b981; animation-delay: 0.2s;"></div>
+                <div class="w-2 h-2 rounded-full animate-pulse" style="background-color: #10b981; animation-delay: 0.4s;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes progress-slide {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+#etl-loading-modal.show {
+    display: flex !important;
+    animation: fadeIn 0.3s ease-out;
+}
+
+#etl-loading-modal {
+    transition: opacity 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#etl-loading-modal .scale-95 {
+    animation: scaleIn 0.3s ease-out forwards;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+</style>
+
 <script>
 const fileId = '{{ file_id }}';
 const masterSheet = '{{ master_sheet }}';
@@ -126,6 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     document.getElementById('transform-btn').addEventListener('click', function() {
+        console.log('🎯 [CLICK] Transform button clicked!');
         runTransform();
     });
 });
@@ -297,18 +379,54 @@ function detectDateColumns() {
 }
 
 async function runTransform() {
+    // CRITICAL DEBUG - This should show if function is called
+    alert('🚀 runTransform function started!');
+    console.log('🔧 [TRANSFORM] Function called');
     const transformBtn = document.getElementById('transform-btn');
     const originalText = transformBtn.innerHTML;
     const originalClasses = transformBtn.className;
+    const loadingModal = document.getElementById('etl-loading-modal');
+    
+    console.log('🔧 [TRANSFORM] Elements found:', {
+        transformBtn: transformBtn ? 'YES' : 'NO',
+        loadingModal: loadingModal ? 'YES' : 'NO'
+    });
+    
+    if (!loadingModal) {
+        console.error('❌ [TRANSFORM] Loading modal not found!');
+        alert('Error: Loading modal element not found. Check browser console.');
+        return;
+    }
     
     try {
+        // Show loading modal
+        console.log('🔧 [TRANSFORM] Showing loading modal...');
+        console.log('🔧 [TRANSFORM] Modal before:', {
+            display: loadingModal.style.display,
+            classes: loadingModal.className
+        });
+        
+        loadingModal.style.display = 'flex';
+        loadingModal.classList.add('show');
+        
+        console.log('🔧 [TRANSFORM] Modal after:', {
+            display: loadingModal.style.display,
+            classes: loadingModal.className
+        });
+        
         // Disable button and show loading with animated spinner
         transformBtn.disabled = true;
         transformBtn.className = 'glass-btn-success opacity-75 cursor-wait animate-pulse';
         transformBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><span>Processing ETL Transform...</span>';
         
+        console.log('🔧 [TRANSFORM] Button updated, showing toast...');
+        
         // Show toast notification
-        showToast('Starting ETL transformation...', 'info');
+        if (typeof showToast === 'function') {
+            showToast('Starting ETL transformation...', 'info');
+        } else {
+            console.warn('⚠️ [TRANSFORM] showToast function not available');
+        }
         
         // Prepare request
         const dateColumns = document.getElementById('date-columns').value
@@ -352,6 +470,12 @@ async function runTransform() {
             sessionStorage.setItem(`transform_result_${fileId}`, JSON.stringify(result));
 
             showToast('ETL transformation completed successfully!', 'success');
+            
+            // Close loading modal with a slight delay for smooth transition
+            setTimeout(() => {
+                loadingModal.classList.remove('show');
+                loadingModal.style.display = 'none';
+            }, 500);
 
             // Redirect to results page
             setTimeout(() => {
@@ -364,6 +488,10 @@ async function runTransform() {
     } catch (error) {
         console.error('Transform error:', error);
         showToast(`Transform failed: ${error.message}`, 'error');
+        
+        // Close loading modal
+        loadingModal.classList.remove('show');
+        loadingModal.style.display = 'none';
         
         // Re-enable button and restore original state
         transformBtn.disabled = false;

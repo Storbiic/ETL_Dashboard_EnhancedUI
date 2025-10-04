@@ -107,25 +107,25 @@
                 </div>
             </div>
 
-            <!-- SQLite Database -->
-            <div class="p-6 rounded-xl shadow-glass transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1" style="background: linear-gradient(135deg, rgba(216, 36, 35, 0.12) 0%, rgba(216, 36, 35, 0.05) 100%); backdrop-filter: blur(15px); border: 1px solid rgba(216, 36, 35, 0.3);">
+            <!-- DAX Measures -->
+            <div class="p-6 rounded-xl shadow-glass transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0.1) 100%); backdrop-filter: blur(15px); border: 1px solid rgba(16, 185, 129, 0.5);">
                 <div class="flex items-start">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-database text-2xl mt-1" style="color: #d82423;"></i>
+                        <i class="fas fa-calculator text-2xl mt-1" style="color: #10b981;"></i>
                     </div>
                     <div class="ml-4">
-                        <h4 class="text-lg font-bold mb-3" style="color: #060505;">SQLite Database</h4>
+                        <h4 class="text-lg font-bold mb-3" style="color: #060505;">DAX Measures</h4>
                         <p class="text-sm font-medium text-text-secondary mb-4">
-                            Single SQLite file containing all tables with proper relationships.
+                            Pre-built DAX measures for Power BI analytics and reporting.
                         </p>
-                        <button id="download-sqlite-btn" class="w-full text-white px-4 py-3 rounded-xl transition-all duration-300 text-sm font-semibold hover:scale-105" style="background: linear-gradient(135deg, #d82423 0%, #a81c1b 100%); box-shadow: 0 4px 14px 0 rgba(216, 36, 35, 0.4);">
+                        <button id="download-dax-btn" class="w-full text-white px-4 py-3 rounded-xl transition-all duration-300 text-sm font-semibold hover:scale-105" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.4);">
                             <i class="fas fa-download mr-2"></i>
-                            Download etl.sqlite
+                            Download DAX File
                         </button>
-                        <div class="mt-3 text-xs font-medium space-y-1" style="color: #d82423;">
-                            <div><i class="fas fa-check mr-2"></i> SQLite format</div>
-                            <div><i class="fas fa-check mr-2"></i> Relational structure</div>
-                            <div><i class="fas fa-check mr-2"></i> All tables included</div>
+                        <div class="mt-3 text-xs font-medium space-y-1" style="color: #10b981;">
+                            <div><i class="fas fa-check mr-2"></i> Markdown format</div>
+                            <div><i class="fas fa-check mr-2"></i> Ready-to-use measures</div>
+                            <div><i class="fas fa-check mr-2"></i> Power BI optimized</div>
                         </div>
                     </div>
                 </div>
@@ -237,41 +237,114 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // Show individual files list
+    // Show individual files list - Organized by format
     const fileList = document.getElementById('file-list');
     if (fileList) {
-        const commonFiles = [
+        const csvFiles = [
             { name: 'masterbom_clean.csv', icon: 'fa-file-csv' },
-            { name: 'masterbom_clean.parquet', icon: 'fa-database' },
             { name: 'fact_parts.csv', icon: 'fa-file-csv' },
-            { name: 'fact_parts.parquet', icon: 'fa-database' },
             { name: 'dim_dates.csv', icon: 'fa-file-csv' },
-            { name: 'dim_dates.parquet', icon: 'fa-database' },
             { name: 'plant_item_status.csv', icon: 'fa-file-csv' },
-            { name: 'plant_item_status.parquet', icon: 'fa-database' },
-            { name: 'etl.sqlite', icon: 'fa-database' },
-            { name: 'data_dictionary.md', icon: 'fa-file-alt' }
+            { name: 'date_role_bridge.csv', icon: 'fa-file-csv' }
         ];
 
-        fileList.innerHTML = commonFiles.map(file => `
-            <div class="p-4 rounded-xl shadow-glass transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1" style="background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.8) 100%); backdrop-filter: blur(15px); border: 1px solid rgba(211, 228, 233, 0.5);">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center flex-1">
-                        <i class="fas ${file.icon} text-2xl mr-4" style="color: #7f9ec3;"></i>
-                        <div class="flex-1">
-                            <h4 class="font-semibold" style="color: #060505;">${file.name}</h4>
-                            <div class="text-sm text-text-secondary mt-1">
-                                <span>Ready for download</span>
+        const parquetFiles = [
+            { name: 'masterbom_clean.parquet', icon: 'fa-file-archive' },
+            { name: 'fact_parts.parquet', icon: 'fa-file-archive' },
+            { name: 'dim_dates.parquet', icon: 'fa-file-archive' },
+            { name: 'plant_item_status.parquet', icon: 'fa-file-archive' },
+            { name: 'date_role_bridge.parquet', icon: 'fa-file-archive' }
+        ];
+
+        const otherFiles = [
+            { name: 'etl.sqlite', icon: 'fa-database', color: '#10b981' }
+        ];
+
+        fileList.innerHTML = `
+            <!-- CSV Files Section -->
+            <div class="mb-6">
+                <h4 class="text-md font-bold mb-3" style="color: #7f9ec3;">
+                    <i class="fas fa-file-csv mr-2"></i>CSV Files
+                </h4>
+                <div class="space-y-3">
+                    ${csvFiles.map(file => `
+                        <div class="p-4 rounded-xl shadow-glass transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1" style="background: linear-gradient(135deg, rgba(127, 158, 195, 0.15) 0%, rgba(127, 158, 195, 0.05) 100%); backdrop-filter: blur(15px); border: 1px solid rgba(127, 158, 195, 0.3);">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center flex-1">
+                                    <i class="fas ${file.icon} text-2xl mr-4" style="color: #7f9ec3;"></i>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold" style="color: #060505;">${file.name}</h4>
+                                        <div class="text-sm text-text-secondary mt-1">
+                                            <span>CSV format - Ready for download</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="downloadFile('${file.name}')" 
+                                        class="text-white px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium hover:scale-105" style="background: linear-gradient(135deg, #7f9ec3 0%, #5d7ea3 100%); box-shadow: 0 4px 14px 0 rgba(127, 158, 195, 0.5);">
+                                    <i class="fas fa-download mr-2"></i>Download
+                                </button>
                             </div>
                         </div>
-                    </div>
-                    <button onclick="downloadFile('${file.name}')" 
-                            class="text-white px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium hover:scale-105" style="background: linear-gradient(135deg, #7f9ec3 0%, #5d7ea3 100%); box-shadow: 0 4px 14px 0 rgba(127, 158, 195, 0.5);">
-                        <i class="fas fa-download mr-2"></i>Download
-                    </button>
+                    `).join('')}
                 </div>
             </div>
-        `).join('');
+
+            <!-- Parquet Files Section -->
+            <div class="mb-6">
+                <h4 class="text-md font-bold mb-3" style="color: #d3e4e9;">
+                    <i class="fas fa-file-archive mr-2" style="color: #7f9ec3;"></i>Parquet Files
+                </h4>
+                <div class="space-y-3">
+                    ${parquetFiles.map(file => `
+                        <div class="p-4 rounded-xl shadow-glass transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1" style="background: linear-gradient(135deg, rgba(211, 228, 233, 0.3) 0%, rgba(211, 228, 233, 0.1) 100%); backdrop-filter: blur(15px); border: 1px solid rgba(211, 228, 233, 0.5);">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center flex-1">
+                                    <i class="fas ${file.icon} text-2xl mr-4" style="color: #7f9ec3;"></i>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold" style="color: #060505;">${file.name}</h4>
+                                        <div class="text-sm text-text-secondary mt-1">
+                                            <span>Parquet format - Power BI optimized</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="downloadFile('${file.name}')" 
+                                        class="text-white px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium hover:scale-105" style="background: linear-gradient(135deg, #7f9ec3 0%, #5d7ea3 100%); box-shadow: 0 4px 14px 0 rgba(127, 158, 195, 0.5);">
+                                    <i class="fas fa-download mr-2"></i>Download
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- Database Files Section -->
+            <div>
+                <h4 class="text-md font-bold mb-3" style="color: #10b981;">
+                    <i class="fas fa-database mr-2"></i>Database Files
+                </h4>
+                <div class="space-y-3">
+                    ${otherFiles.map(file => `
+                        <div class="p-4 rounded-xl shadow-glass transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%); backdrop-filter: blur(15px); border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center flex-1">
+                                    <i class="fas ${file.icon} text-2xl mr-4" style="color: ${file.color};"></i>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold" style="color: #060505;">${file.name}</h4>
+                                        <div class="text-sm text-text-secondary mt-1">
+                                            <span>SQLite database - All tables included</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="downloadFile('${file.name}')" 
+                                        class="text-white px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium hover:scale-105" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.5);">
+                                    <i class="fas fa-download mr-2"></i>Download
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
     }
 });
 
@@ -293,8 +366,8 @@ document.getElementById('download-csv-btn')?.addEventListener('click', function(
     downloadFile('DATA_CSV.zip');
 });
 
-document.getElementById('download-sqlite-btn')?.addEventListener('click', function() {
-    downloadFile('etl.sqlite');
+document.getElementById('download-dax-btn')?.addEventListener('click', function() {
+    downloadFile('measures_dax.md');
 });
 
 document.getElementById('download-dictionary-btn')?.addEventListener('click', function() {

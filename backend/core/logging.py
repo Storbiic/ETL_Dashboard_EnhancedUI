@@ -41,16 +41,21 @@ def setup_logging() -> None:
     log_file = log_dir / "etl.log"
 
     # Configure standard library logging with file handler
-    file_handler = logging.FileHandler(str(log_file), mode='a')
+    file_handler = logging.FileHandler(str(log_file), mode='a', encoding='utf-8')
     file_handler.setLevel(getattr(logging, settings.log_level.upper()))
     
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(getattr(logging, settings.log_level.upper()))
 
+    # Clear any existing handlers to avoid duplicates
+    root_logger = logging.getLogger()
+    root_logger.handlers.clear()
+    
     logging.basicConfig(
         format="%(message)s",
         handlers=[file_handler, console_handler],
         level=getattr(logging, settings.log_level.upper()),
+        force=True  # Force reconfiguration
     )
 
     # Configure structlog
@@ -76,7 +81,7 @@ def setup_logging() -> None:
         wrapper_class=structlog.make_filtering_bound_logger(
             getattr(logging, settings.log_level.upper())
         ),
-        logger_factory=structlog.WriteLoggerFactory(),
+        logger_factory=structlog.stdlib.LoggerFactory(),  # FIXED: Use stdlib logger factory
         cache_logger_on_first_use=True,
     )
 

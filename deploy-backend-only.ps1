@@ -6,11 +6,12 @@ param(
 )
 
 # Configuration
-$PROJECT_ID = "yazaki-etl-dashboard"
-$REGION = "europe-west3"
-$BACKEND_SERVICE = "backend-service"
-$REPOSITORY = "etl-dashboard"
-$REGISTRY_URL = "europe-west3-docker.pkg.dev"
+PROJECT_ID="etl-dashboard-enhanced-UI"
+REGION="europe-west1"
+FRONTEND_SERVICE="frontend-service"
+BACKEND_SERVICE="backend-service"
+REPOSITORY="etl-dashboard-enhanced-UI"
+REGISTRY_URL="europe-west1-docker.pkg.dev"
 $BACKEND_IMAGE = "${REGISTRY_URL}/${PROJECT_ID}/${REPOSITORY}/${BACKEND_SERVICE}:latest"
 
 Write-Host "🚀 Deploying Backend to GCP Cloud Run (Europe West 3)..." -ForegroundColor Green

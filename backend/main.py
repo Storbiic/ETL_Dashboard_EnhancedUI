@@ -108,38 +108,105 @@ async def get_recent_logs():
     """Get recent log entries for monitoring."""
     import json
     import os
+    import re
     from datetime import datetime
 
     try:
         logs = []
         log_file = os.path.join(os.path.dirname(__file__), "..", "logs", "etl.log")
+        log_file_absolute = os.path.abspath(log_file)
+        
+        logger.info("Reading logs", file_path=log_file_absolute, exists=os.path.exists(log_file))
 
         if os.path.exists(log_file):
-            with open(log_file, "r") as f:
+            file_size = os.path.getsize(log_file)
+            logger.info("Log file info", size_bytes=file_size)
+            
+            if file_size == 0:
+                logger.warning("Log file is empty")
+                return {
+                    "logs": [], 
+                    "count": 0, 
+                    "status": "success",
+                    "message": f"Log file is empty: {log_file_absolute}",
+                    "file_path": log_file_absolute,
+                    "file_size": file_size
+                }
+            
+            with open(log_file, "r", encoding="utf-8") as f:
                 lines = f.readlines()
-                # Get last 50 lines
-                recent_lines = lines[-50:] if len(lines) > 50 else lines
+                logger.info("Read log lines", total_lines=len(lines))
+                # Get last 100 lines
+                recent_lines = lines[-100:] if len(lines) > 100 else lines
 
                 for line in recent_lines:
                     if line.strip():
                         try:
                             # Try to parse as JSON log
                             log_data = json.loads(line.strip())
+                            # Ensure required fields
+                            if 'message' not in log_data:
+                                # Check for 'event' field (structured log format)
+                                if 'event' in log_data:
+                                    log_data['message'] = log_data['event']
+                                else:
+                                    log_data['message'] = str(log_data)
+                            if 'timestamp' not in log_data:
+                                log_data['timestamp'] = datetime.now().isoformat()
+                            if 'level' not in log_data:
+                                # Check for 'severity' field
+                                if 'severity' in log_data:
+                                    log_data['level'] = log_data['severity'].lower()
+                                else:
+                                    log_data['level'] = 'info'
                             logs.append(log_data)
                         except json.JSONDecodeError:
-                            # Plain text log
-                            logs.append(
-                                {
+                            # Try to parse standard Python log format
+                            # Format: YYYY-MM-DD HH:MM:SS,mmm - LEVEL - message
+                            log_pattern = r'(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}(?:,\d{3})?)\s*-\s*(\w+)\s*-\s*(.+)'
+                            match = re.match(log_pattern, line.strip())
+                            
+                            if match:
+                                timestamp_str, level, message = match.groups()
+                                # Convert timestamp to ISO format
+                                try:
+                                    # Handle both formats: with and without milliseconds
+                                    if ',' in timestamp_str:
+                                        dt = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S,%f')
+                                    else:
+                                        dt = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+                                    timestamp = dt.isoformat()
+                                except:
+                                    timestamp = datetime.now().isoformat()
+                                
+                                logs.append({
+                                    "message": message.strip(),
+                                    "timestamp": timestamp,
+                                    "level": level.lower(),
+                                })
+                            else:
+                                # Plain text log without format
+                                logs.append({
                                     "message": line.strip(),
                                     "timestamp": datetime.now().isoformat(),
                                     "level": "info",
-                                }
-                            )
+                                })
+        else:
+            logger.error("Log file not found", path=log_file_absolute)
+            return {
+                "error": f"Log file not found: {log_file_absolute}", 
+                "logs": [], 
+                "count": 0, 
+                "status": "error",
+                "file_path": log_file_absolute
+            }
 
-        return {"logs": logs, "count": len(logs)}
+        logger.info("Returning logs", count=len(logs))
+        return {"logs": logs, "count": len(logs), "status": "success", "file_path": log_file_absolute}
 
     except Exception as e:
-        return {"error": f"Failed to read logs: {str(e)}", "logs": [], "count": 0}
+        logger.error(f"Failed to read logs: {str(e)}")
+        return {"error": f"Failed to read logs: {str(e)}", "logs": [], "count": 0, "status": "error"}
 
 
 @app.get("/api/progress/status")

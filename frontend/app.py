@@ -237,8 +237,14 @@ def results():
 def logs():
     """Logs page for monitoring system activity."""
     return render_template(
-        "logs.html", fastapi_url=Config.FASTAPI_BROWSER_URL, page_title="System Logs"
+        "logs.html", fastapi_url=Config.FASTAPI_BROWSER_URL, page_title="System Logs", hide_progress=True
     )
+
+
+@app.route("/test-modal-logs")
+def test_modal_logs():
+    """Test page for loading modal and logs functionality."""
+    return render_template("test_modal_logs.html")
 
 
 @app.route("/api/logs/backend")

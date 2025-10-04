@@ -1604,8 +1604,12 @@ const progressSteps = [
 ];
 
 function showProgressModal() {
-    const modal = document.getElementById('progress-modal');
+    // Try both modal IDs for compatibility
+    const modal = document.getElementById('etl-loading-modal') || document.getElementById('progress-modal');
     if (modal) {
+        console.log('🎬 [MODAL] Showing loading modal...');
+        modal.style.display = 'flex';
+        modal.classList.add('show');
         modal.classList.remove('hidden');
         progressStartTime = Date.now();
         currentProgressStep = 0;
@@ -1613,15 +1617,26 @@ function showProgressModal() {
         // Start timer
         progressTimer = setInterval(updateProgressTimer, 1000);
 
-        // Initialize progress display
-        updateProgressDisplay(0);
-        initializeProgressSteps();
+        // Initialize progress display (only if elements exist)
+        const progressDisplay = document.getElementById('progress-display');
+        if (progressDisplay) {
+            updateProgressDisplay(0);
+            initializeProgressSteps();
+        }
+        
+        console.log('✅ [MODAL] Loading modal displayed');
+    } else {
+        console.error('❌ [MODAL] Loading modal not found (tried etl-loading-modal and progress-modal)');
     }
 }
 
 function hideProgressModal() {
-    const modal = document.getElementById('progress-modal');
+    // Try both modal IDs for compatibility
+    const modal = document.getElementById('etl-loading-modal') || document.getElementById('progress-modal');
     if (modal) {
+        console.log('🎬 [MODAL] Hiding loading modal...');
+        modal.style.display = 'none';
+        modal.classList.remove('show');
         modal.classList.add('hidden');
 
         // Clear timer
