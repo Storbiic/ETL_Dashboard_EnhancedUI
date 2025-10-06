@@ -233,11 +233,11 @@ def results():
     )
 
 
-@app.route("/logs")
-def logs():
-    """Logs page for monitoring system activity."""
+@app.route("/guidelines")
+def guidelines():
+    """Guidelines page for Yazaki dashboards documentation."""
     return render_template(
-        "logs.html", fastapi_url=Config.FASTAPI_BROWSER_URL, page_title="System Logs", hide_progress=True
+        "guidelines.html", fastapi_url=Config.FASTAPI_BROWSER_URL, page_title="Yazaki Dashboards Guidelines", hide_progress=True
     )
 
 

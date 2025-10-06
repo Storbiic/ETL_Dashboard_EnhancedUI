@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Yazaki Dashboards Guidelines{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="p-8 rounded-2xl shadow-glass transition-all duration-300" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(211, 228, 233, 0.3);">
+        <div class="text-center">
+            <h1 class="text-4xl font-extrabold mb-2" style="color: #060505;">
+                <i class="fas fa-book-open mr-4" style="color: #7f9ec3;"></i>
+                Yazaki Dashboards Guidelines
+            </h1>
+            <p class="text-lg font-medium" style="color: #666666;">
+                Professional documentation hub for ETL and Power BI dashboard usage
+            </p>
+        </div>
+    </div>
+
+    <!-- Guidelines Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        
+        <!-- ETL Dashboard Guideline Card -->
+        <div class="group rounded-2xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1" style="background: #ffffff; border: 2px solid rgba(127, 158, 195, 0.2);">
+            <div class="p-8 h-full flex flex-col">
+                <!-- Icon Header -->
+                <div class="flex items-center justify-center mb-6">
+                    <div class="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110" style="background: linear-gradient(135deg, #98b1cf 0%, #7f9ec3 100%);">
+                        <i class="fas fa-cogs text-3xl" style="color: #ffffff;"></i>
+                    </div>
+                </div>
+
+                <!-- Card Title -->
+                <h2 class="text-2xl font-bold mb-4 text-center" style="color: #060505;">
+                    ETL Dashboard Guideline
+                </h2>
+
+                <!-- Description -->
+                <p class="text-base mb-6 text-center flex-grow" style="color: #666666; line-height: 1.6;">
+                    Explains the Excel ETL workflow from upload to Power BI integration. Learn how to transform raw data into analytics-ready datasets.
+                </p>
+
+                <!-- Download Button -->
+                <div class="text-center">
+                    <a href="{{ url_for('static', filename='docs/Report_etl_dashboard.pdf') }}" 
+                       target="_blank" 
+                       class="inline-flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-xl" 
+                       style="background: linear-gradient(135deg, #98b1cf 0%, #7f9ec3 100%); color: #ffffff;">
+                        <i class="fas fa-file-pdf text-xl"></i>
+                        <span>View / Download PDF</span>
+                        <i class="fas fa-external-link-alt text-sm"></i>
+                    </a>
+                </div>
+
+                <!-- Features List -->
+                <div class="mt-6 pt-6 border-t" style="border-color: rgba(127, 158, 195, 0.2);">
+                    <ul class="space-y-2 text-sm" style="color: #666666;">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle mr-2 mt-1" style="color: #7f9ec3;"></i>
+                            <span>Step-by-step upload workflow</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle mr-2 mt-1" style="color: #7f9ec3;"></i>
+                            <span>Data transformation rules</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle mr-2 mt-1" style="color: #7f9ec3;"></i>
+                            <span>Power BI integration guide</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Power BI Dashboard Guideline Card -->
+        <div class="group rounded-2xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1" style="background: #ffffff; border: 2px solid rgba(127, 158, 195, 0.2);">
+            <div class="p-8 h-full flex flex-col">
+                <!-- Icon Header -->
+                <div class="flex items-center justify-center mb-6">
+                    <div class="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110" style="background: linear-gradient(135deg, #98b1cf 0%, #7f9ec3 100%);">
+                        <i class="fas fa-chart-line text-3xl" style="color: #ffffff;"></i>
+                    </div>
+                </div>
+
+                <!-- Card Title -->
+                <h2 class="text-2xl font-bold mb-4 text-center" style="color: #060505;">
+                    Power BI Dashboard Guideline
+                </h2>
+
+                <!-- Description -->
+                <p class="text-base mb-6 text-center flex-grow" style="color: #666666; line-height: 1.6;">
+                    Details interpretation of KPIs, charts, and pages for Master BOM. Master your data analysis with comprehensive dashboard navigation.
+                </p>
+
+                <!-- Download Button -->
+                <div class="text-center">
+                    <a href="{{ url_for('static', filename='docs/Report_powerbi_dashboard.pdf') }}" 
+                       target="_blank" 
+                       class="inline-flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-xl" 
+                       style="background: linear-gradient(135deg, #98b1cf 0%, #7f9ec3 100%); color: #ffffff;">
+                        <i class="fas fa-file-pdf text-xl"></i>
+                        <span>View / Download PDF</span>
+                        <i class="fas fa-external-link-alt text-sm"></i>
+                    </a>
+                </div>
+
+                <!-- Features List -->
+                <div class="mt-6 pt-6 border-t" style="border-color: rgba(127, 158, 195, 0.2);">
+                    <ul class="space-y-2 text-sm" style="color: #666666;">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle mr-2 mt-1" style="color: #7f9ec3;"></i>
+                            <span>KPI definitions & metrics</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle mr-2 mt-1" style="color: #7f9ec3;"></i>
+                            <span>Chart interpretation guide</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle mr-2 mt-1" style="color: #7f9ec3;"></i>
+                            <span>Dashboard navigation tips</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Additional Help Section -->
+    <div class="max-w-4xl mx-auto mt-8 p-6 rounded-xl" style="background: linear-gradient(135deg, rgba(211, 228, 233, 0.3) 0%, rgba(211, 228, 233, 0.1) 100%); border: 1px solid rgba(127, 158, 195, 0.25);">
+        <div class="flex items-start gap-4">
+            <div class="flex-shrink-0">
+                <i class="fas fa-info-circle text-2xl" style="color: #7f9ec3;"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold mb-2" style="color: #060505;">Need Additional Support?</h3>
+                <p class="text-sm mb-3" style="color: #666666;">
+                    These comprehensive guides cover all aspects of the Yazaki dashboard ecosystem. For technical support or custom ETL requirements, please contact your system administrator.
+                </p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="{{ url_for('index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:bg-opacity-10" style="background: #ffffff; color: #7f9ec3; border: 1px solid #7f9ec3;">
+                        <i class="fas fa-upload"></i>
+                        <span>Start ETL Workflow</span>
+                    </a>
+                    <a href="{{ fastapi_url }}/docs" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:bg-opacity-10" style="background: #ffffff; color: #7f9ec3; border: 1px solid #7f9ec3;">
+                        <i class="fas fa-code"></i>
+                        <span>API Documentation</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+/* Custom hover effects for cards */
+.group:hover .fas.fa-cogs,
+.group:hover .fas.fa-chart-line {
+    animation: pulse-icon 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Smooth transitions for all interactive elements */
+a {
+    transition: all 0.3s ease;
+}
+
+/* PDF link hover effect */
+a[href*=".pdf"]:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .grid.grid-cols-1.md\:grid-cols-2 {
+        gap: 1.5rem;
+    }
+}
+</style>
+
+{% endblock %}

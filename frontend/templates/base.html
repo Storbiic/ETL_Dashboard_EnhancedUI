@@ -105,8 +105,8 @@
                     <a href="{{ url_for('index') }}" class="nav-item px-4 py-2 rounded-2xl text-sm {% if request.endpoint == 'index' %}font-semibold text-vista-blue-dark bg-azure-light{% else %}font-medium text-text-tertiary hover:bg-azure-light/50 hover:text-vista-blue-dark{% endif %} transition-all duration-300">
                         <i class="fas fa-home mr-2"></i> Home
                     </a>
-                    <a href="{{ url_for('logs') }}" class="nav-item px-4 py-2 rounded-2xl text-sm {% if request.endpoint == 'logs' %}font-semibold text-vista-blue-dark bg-azure-light{% else %}font-medium text-text-tertiary hover:bg-azure-light/50 hover:text-vista-blue-dark{% endif %} transition-all duration-300">
-                        <i class="fas fa-file-alt mr-2"></i> Logs
+                    <a href="{{ url_for('guidelines') }}" class="nav-item px-4 py-2 rounded-2xl text-sm {% if request.endpoint == 'guidelines' %}font-semibold text-vista-blue-dark bg-azure-light{% else %}font-medium text-text-tertiary hover:bg-azure-light/50 hover:text-vista-blue-dark{% endif %} transition-all duration-300">
+                        <i class="fas fa-book-open mr-2"></i> Guidelines
                     </a>
                     <a href="{{ fastapi_url }}/docs" target="_blank" class="nav-item px-4 py-2 rounded-2xl text-sm font-medium transition-all duration-300 text-text-tertiary hover:bg-azure-light/50 hover:text-vista-blue-dark">
                         <i class="fas fa-book mr-2"></i> API Docs
