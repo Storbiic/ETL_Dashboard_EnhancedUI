@@ -315,8 +315,13 @@ def get_powerbi_templates():
 def download_file(filename):
     """Download processed files."""
     try:
-        # Use processed folder only
+        # First, check processed folder
         file_path = PROCESSED_FOLDER / filename
+
+        # If not found, check powerbi folder for documentation files
+        if not file_path.exists():
+            powerbi_folder = PROJECT_ROOT / "powerbi"
+            file_path = powerbi_folder / filename
 
         if not file_path.exists():
             return jsonify({"error": f"File not found: {filename}"}), 404

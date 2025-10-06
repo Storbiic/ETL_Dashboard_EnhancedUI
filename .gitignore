@@ -155,3 +155,29 @@ htmlcov/
 .env.local
 .env.development
 .env.test
+
+# Development notes and fix logs (exclude from repo)
+*_FIX.md
+*_GUIDE.md
+*_COMPARISON.md
+*_UPDATE.md
+*_SUMMARY.md
+*_BREAKDOWN.md
+*_RESOLVED.md
+STARTUP_REMINDER.txt
+reset_progress.js
+CLEANUP_PLAN.md
+
+# Keep these important markdown files
+!README.md
+!CONTRIBUTING.md
+!LICENSE
+!docs/**/*.md
+
+# Deployment scripts (moved to scripts/deployment/)
+scripts/deployment/
+
+# Backup files
+*.bak
+*.backup
+*.old
