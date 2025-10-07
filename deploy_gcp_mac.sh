@@ -8,9 +8,9 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-PROJECT_ID="yazaki-etl-dashboard-ui"
+PROJECT_ID="yazaki-etl-dashboard-updated"
 REGION="europe-west1"
-REPOSITORY="etl-dashboard-ui"
+REPOSITORY="etl-dashboard-updated"
 REGISTRY_URL="europe-west1-docker.pkg.dev"
 BILLING_ACCOUNT_ID=""  # Will be set later if needed
 
