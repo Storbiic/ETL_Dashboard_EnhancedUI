@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ page_title or 'ETL Integration HUB' }}{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='icons/etl_logo.svg') }}">
+    <link rel="shortcut icon" type="image/svg+xml" href="{{ url_for('static', filename='icons/etl_logo.svg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/etl_logo.svg') }}">
+    
     <!-- Tailwind CSS (Local) -->
     <script src="{{ url_for('static', filename='vendor/js/tailwind.js') }}"></script>
     <script>
@@ -17,6 +23,7 @@
                 originalWarn.apply(console, arguments);
             };
         })();
+
         
         // Configure Tailwind with custom design tokens
         tailwind.config = {

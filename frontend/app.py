@@ -175,7 +175,7 @@ def favicon():
 def index():
     """Main dashboard page with stepper interface."""
     return render_template(
-        "index.html", fastapi_url=Config.FASTAPI_BROWSER_URL, page_title="ETL Dashboard"
+        "index.html", fastapi_url=Config.FASTAPI_BROWSER_URL, page_title="ETL Integration HUB"
     )
 
 
