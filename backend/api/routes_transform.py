@@ -61,6 +61,10 @@ async def transform_data(request: TransformRequest):
             status_sheet=request.status_sheet,
         )
 
+        # Clear previous processed files to ensure fresh ETL run
+        storage = DataStorage(etl_logger)
+        storage.clear_processed_files()
+
         # Create Excel reader
         excel_reader = ExcelReader(upload_path)
 
@@ -206,7 +210,6 @@ async def transform_data(request: TransformRequest):
             # Save data in multiple formats
             etl_logger.info("Saving processed data")
 
-            storage = DataStorage(etl_logger)
             artifacts = storage.save_all_formats(all_dataframes)
 
             # Create data dictionary

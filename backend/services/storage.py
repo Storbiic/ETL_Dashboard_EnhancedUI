@@ -392,6 +392,21 @@ class DataStorage:
         table_desc = descriptions.get(table_name, {})
         return table_desc.get(column_name, "Data column")
 
+    def clear_processed_files(self):
+        """Clear all processed files to ensure fresh ETL run."""
+        try:
+            files_removed = 0
+            # Remove all files except .gitkeep
+            for file_path in self.processed_folder.iterdir():
+                if file_path.is_file() and file_path.name != ".gitkeep":
+                    file_path.unlink()
+                    files_removed += 1
+
+            self.logger.info("Cleared processed folder", files_removed=files_removed)
+
+        except Exception as e:
+            self.logger.warning(f"Failed to clear processed files: {e}")
+
     def cleanup_old_files(self, keep_latest: int = 5):
         """Clean up old processed files, keeping only the latest N versions."""
         try:
